@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <title>Patterns Personal Site</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" id="prism-theme">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+       :root {
+            --bg-primary: #f7faff;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f0f4f9;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-accent: #3b82f6;
+            --border-color: #e2e8f0;
+            --prose-code-bg: #eef2ff;
+            --prose-pre-bg: #f8fafc;
+        }
+
+        html.dark {
+            --bg-primary: #0a192f;
+            --bg-secondary: #112240;
+            --bg-tertiary: #233554;
+            --text-primary: #ccd6f6;
+            --text-secondary: #8892b0;
+            --text-accent: #64ffda;
+            --border-color: #233554;
+            --prose-code-bg: #112240;
+            --prose-pre-bg: #112240;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .sidebar {
+            background-color: var(--bg-secondary);
+            border-color: var(--border-color);
+            transition: transform 0.3s ease, background-color 0.3s;
+        }
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: var(--bg-tertiary);
+            color: var(--text-accent);
+        }
+        .sidebar-item.active {
+            border-left: 3px solid var(--text-accent);
+            padding-left: calc(1rem - 3px);
+        }
+        .lang-toggle button, .theme-toggle button {
+            background-color: var(--bg-tertiary);
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .lang-toggle button.active, .theme-toggle button.active {
+            background-color: var(--text-accent);
+            color: var(--bg-secondary) !important;
+        }
+        .prose h1, .prose h2, .prose h3 { color: var(--text-primary); }
+        .prose p, .prose li { color: var(--text-secondary); }
+        .prose strong { color: var(--text-accent); }
+        .prose a { color: var(--text-accent); }
+        .prose code {
+            color: var(--text-accent);
+            background-color: var(--prose-code-bg);
+            padding: 0.2em 0.4em;
+            margin: 0;
+            font-size: 85%;
+            border-radius: 6px;
+        }
+        .prose pre {
+            background-color: var(--prose-pre-bg) !important;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .prose img {
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-accent); }
+    </style>
+</head>
+<body class="flex" x-data="pageController()" x-init="init()">
+  <app-root></app-root>
+
+  
+    <!-- Sidebar -->
+    <aside class="fixed inset-y-0 left-0 z-30 w-64 transform -translate-x-full md:relative md:translate-x-0 sidebar border-r"
+           :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}">
+        <div class="flex flex-col h-full">
+            <div class="p-4 text-center border-b" :style="{ borderColor: 'var(--border-color)' }">
+                <h1 class="text-xl font-bold">Design Patterns</h1>
+                <p class="text-sm" :style="{ color: 'var(--text-secondary)' }" x-text="lang === 'en' ? 'by Angelo Marques' : 'por Angelo Marques'"></p>
+            </div>
+            <nav class="flex-1 p-2 space-y-1 overflow-y-auto">
+                <a href="#" @click.prevent="page = 'home'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'home'}">
+                    <i class="fas fa-home w-6"></i>
+                    <span x-text="lang === 'en' ? 'Home' : 'Início'"></span>
+                </a>
+                
+                <h3 class="px-4 pt-4 pb-2 text-xs font-semibold tracking-wider uppercase" :style="{ color: 'var(--text-secondary)' }" x-text="lang === 'en' ? 'Creational Patterns' : 'Padrões Criacionais'"></h3>
+                <a href="#" @click.prevent="page = 'factory'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'factory'}">Factory Method</a>
+                <a href="#" @click.prevent="page = 'abstract_factory'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'abstract_factory'}">Abstract Factory</a>
+                <a href="#" @click.prevent="page = 'builder'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'builder'}">Builder</a>
+                <a href="#" @click.prevent="page = 'prototype'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'prototype'}">Prototype</a>
+                <a href="#" @click.prevent="page = 'singleton'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'singleton'}">Singleton</a>
+                
+                <h3 class="px-4 pt-4 pb-2 text-xs font-semibold tracking-wider uppercase" :style="{ color: 'var(--text-secondary)' }" x-text="lang === 'en' ? 'Structural Patterns' : 'Padrões Estruturais'"></h3>
+                <a href="#" @click.prevent="page = 'adapter'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'adapter'}">Adapter</a>
+                <a href="#" @click.prevent="page = 'bridge'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'bridge'}">Bridge</a>
+                <a href="#" @click.prevent="page = 'composite'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'composite'}">Composite</a>
+                <a href="#" @click.prevent="page = 'decorator'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'decorator'}">Decorator</a>
+                <a href="#" @click.prevent="page = 'facade'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'facade'}">Facade</a>
+                <a href="#" @click.prevent="page = 'flyweight'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'flyweight'}">Flyweight</a>
+                <a href="#" @click.prevent="page = 'proxy'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'proxy'}">Proxy</a>
+
+                <h3 class="px-4 pt-4 pb-2 text-xs font-semibold tracking-wider uppercase" :style="{ color: 'var(--text-secondary)' }" x-text="lang === 'en' ? 'Behavioral Patterns' : 'Padrões Comportamentais'"></h3>
+                <a href="#" @click.prevent="page = 'chain'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'chain'}">Chain of Responsibility</a>
+                <a href="#" @click.prevent="page = 'command'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'command'}">Command</a>
+                <a href="#" @click.prevent="page = 'iterator'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'iterator'}">Iterator</a>
+                <a href="#" @click.prevent="page = 'mediator'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'mediator'}">Mediator</a>
+                <a href="#" @click.prevent="page = 'memento'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'memento'}">Memento</a>
+                <a href="#" @click.prevent="page = 'observer'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'observer'}">Observer</a>
+                <a href="#" @click.prevent="page = 'state'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'state'}">State</a>
+                <a href="#" @click.prevent="page = 'strategy'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'strategy'}">Strategy</a>
+                <a href="#" @click.prevent="page = 'template_method'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'template_method'}">Template Method</a>
+                <a href="#" @click.prevent="page = 'visitor'; sidebarOpen = false" class="sidebar-item flex items-center px-4 py-2 rounded-md" :class="{'active': page === 'visitor'}">Visitor</a>
+            </nav>
+            <div class="p-4 border-t" :style="{ borderColor: 'var(--border-color)' }">
+                <div class="flex justify-center items-center space-x-2">
+                    <div class="theme-toggle flex justify-center items-center rounded-full p-1 w-1/2">
+                        <button @click="toggleTheme()" class="w-full py-1 text-sm rounded-full flex items-center justify-center">
+                            <i class="fas" :class="theme === 'dark' ? 'fa-sun' : 'fa-moon'"></i>
+                        </button>
+                    </div>
+                    <div class="lang-toggle flex justify-center items-center rounded-full p-1 w-1/2">
+                        <button @click="lang = 'en'" :class="{'active': lang === 'en'}" class="w-full py-1 text-sm rounded-full">EN</button>
+                        <button @click="lang = 'pt'" :class="{'active': lang === 'pt'}" class="w-full py-1 text-sm rounded-full">PT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col relative">
+        <!-- Top bar -->
+        <header class="sticky top-0 z-10 flex items-center justify-between p-4 md:hidden" :style="{ backgroundColor: 'rgba(var(--bg-primary-rgb), 0.8)', borderColor: 'var(--border-color)' }" style="backdrop-filter: blur(4px); border-bottom-width: 1px;">
+            <button @click="sidebarOpen = !sidebarOpen" class="text-2xl">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="text-xl font-bold">Design Patterns</h1>
+        </header>
+
+        <!-- Page Content -->
+        <main id="main-content" class="flex-1 p-6 md:p-10 overflow-y-auto">
+            <div class="max-w-4xl mx-auto prose lg:prose-xl">
+
+                <!-- Home Page -->
+                <div x-show="page === 'home'" x-transition>
+                    <div class="text-center animate-fadeIn">
+                        <img :src="theme === 'dark' ? 'https://placehold.co/150x150/64ffda/0a192f?text=AM' : 'https://placehold.co/150x150/3b82f6/FFFFFF?text=AM'" alt="Angelo Marques" class="w-32 h-32 rounded-full mx-auto mb-4 border-4" :style="{ borderColor: 'var(--bg-tertiary)' }">
+                        <h1 class="!text-4xl font-bold !mb-2">Angelo Marques</h1>
+                        <h2 class="!text-xl font-medium !mt-0" :style="{ color: 'var(--text-secondary)' }" x-text="lang === 'en' ? 'Fullstack Developer' : 'Desenvolvedor Fullstack'"></h2>
+                        <p class="mt-4" x-text="lang === 'en' ? 'Bio: Passionate about creating robust and scalable solutions. Experienced in modern web technologies and committed to writing clean, efficient code following best practices and design patterns.' : 'Bio: Apaixonado por criar soluções robustas e escaláveis. Experiente em tecnologias web modernas e comprometido em escrever código limpo e eficiente, seguindo as melhores práticas e padrões de projeto.'"></p>
+                        <div class="mt-6 flex justify-center items-center space-x-6 text-2xl" :style="{ color: 'var(--text-secondary)' }">
+                            <a href="https://linkedin.com/in/angelomarquesdeoliveirasilva" target="_blank" class="hover:!text-[var(--text-accent)] transition-colors"><i class="fab fa-linkedin"></i></a>
+                            <a href="mailto:angelomarquesdeolviera@gmail.com" class="hover:!text-[var(--text-accent)] transition-colors"><i class="fas fa-envelope"></i></a>
+                            <a href="https://github.com" target="_blank" class="hover:!text-[var(--text-accent)] transition-colors"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content pages -->
+                <template x-for="pattern in patterns" :key="pattern.id">
+                    <div x-show="page === pattern.id" x-transition class="animate-fadeIn">
+                        <div x-show="lang === 'en'">
+                            <h1 x-text="pattern.en.title"></h1>
+                            <p x-text="pattern.en.subtitle"></p>
+                            <img :src="pattern.image_url" :alt="pattern.en.title" class="w-full my-6">
+                            <h2 x-text="pattern.en.h2_intent"></h2>
+                            <p x-html="pattern.en.p_intent"></p>
+                            <h2 x-text="pattern.en.h2_problem"></h2>
+                            <p x-html="pattern.en.p_problem"></p>
+                            <h2 x-text="pattern.en.h2_solution"></h2>
+                            <p x-html="pattern.en.p_solution"></p>
+                            <h3 class="mt-8">C# Example</h3>
+                            <pre><code class="language-csharp" x-init="$el.textContent = getCode(pattern.id, 'csharp')" x-effect="if(page === pattern.id) Prism.highlightElement($el)"></code></pre>
+                            <h3 class="mt-8">Java Example</h3>
+                            <pre><code class="language-java" x-init="$el.textContent = getCode(pattern.id, 'java')" x-effect="if(page === pattern.id) Prism.highlightElement($el)"></code></pre>
+                        </div>
+                        <div x-show="lang === 'pt'">
+                            <h1 x-text="pattern.pt.title"></h1>
+                            <p x-text="pattern.pt.subtitle"></p>
+                            <img :src="pattern.image_url" :alt="pattern.pt.title" class="w-full my-6">
+                            <h2 x-text="pattern.pt.h2_intent"></h2>
+                            <p x-html="pattern.pt.p_intent"></p>
+                            <h2 x-text="pattern.pt.h2_problem"></h2>
+                            <p x-html="pattern.pt.p_problem"></p>
+                            <h2 x-text="pattern.pt.h2_solution"></h2>
+                            <p x-html="pattern.pt.p_solution"></p>
+                            <h3 class="mt-8">Exemplo em C#</h3>
+                            <pre><code class="language-csharp" x-init="$el.textContent = getCode(pattern.id, 'csharp')" x-effect="if(page === pattern.id) Prism.highlightElement($el)"></code></pre>
+                            <h3 class="mt-8">Exemplo em Java</h3>
+                            <pre><code class="language-java" x-init="$el.textContent = getCode(pattern.id, 'java')" x-effect="if(page === pattern.id) Prism.highlightElement($el)"></code></pre>
+                        </div>
+                    </div>
+                </template>
+
+            </div>
+        </main>
+        
+        <!-- Back to top button -->
+        <button @click="scrollToTop()" x-show="showToTopButton" x-transition
+            class="fixed bottom-8 right-8 w-12 h-12 rounded-full text-lg flex items-center justify-center shadow-lg"
+            :style="{ backgroundColor: 'var(--text-accent)', color: 'var(--bg-secondary)' }">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    
+    <script>
+    function pageController() {
+        return {
+            sidebarOpen: false,
+            lang: 'en',
+            page: 'home',
+            theme: 'dark',
+            patterns: [],
+            showToTopButton: false,
+            
+            init() {
+                this.theme = localStorage.getItem('theme') || 'dark';
+                this.applyTheme();
+                this.patterns = this.getAllPatterns();
+                
+                const mainContent = document.getElementById('main-content');
+                mainContent.addEventListener('scroll', () => {
+                    this.showToTopButton = mainContent.scrollTop > 200;
+                });
+
+                this.$watch('page', () => {
+                    this.$nextTick(() => {
+                        const newContent = document.querySelector(`div[x-show="page === '${this.page}']`);
+                        if (newContent) {
+                            newContent.classList.remove('animate-fadeIn');
+                            void newContent.offsetWidth; 
+                            newContent.classList.add('animate-fadeIn');
+                        }
+                        this.scrollToTop();
+                    });
+                });
+            },
+
+            scrollToTop() {
+                document.getElementById('main-content').scrollTo({ top: 0, behavior: 'smooth' });
+            },
+
+            toggleTheme() {
+                this.theme = this.theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', this.theme);
+                this.applyTheme();
+            },
+
+            applyTheme() {
+                const html = document.documentElement;
+                const prismTheme = document.getElementById('prism-theme');
+                if (this.theme === 'dark') {
+                    html.classList.add('dark');
+                    prismTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css';
+                } else {
+                    html.classList.remove('dark');
+                    prismTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-coy.min.css';
+                }
+            },
+
+            getCode(patternId, lang) {
+                const snippets = this.getAllCodeSnippets();
+                if (snippets[patternId] && snippets[patternId][lang]) {
+                    return snippets[patternId][lang];
+                }
+                return `// Code for ${patternId} in ${lang} not found.`;
+            },
+
+            getAllPatterns() {
+                return [
+                    // Creational
+                    { id: 'factory', image_url: 'https://images.pexels.com/photos/162553/keys-workshop-mechanic-tools-162553.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Factory Method', subtitle: 'Also known as: Virtual Constructor', h2_intent: 'Intent', p_intent: 'Provides an interface for creating objects in a superclass, but allows subclasses to alter the type of objects that will be created. It lets a class defer instantiation to subclasses.', h2_problem: 'Problem', p_problem: 'You have a class that cannot anticipate the exact class of objects it needs to create. For example, a document framework needs to create different types of documents (like text, spreadsheet, etc.), but the framework itself should not be coupled to concrete document classes.', h2_solution: 'Solution', p_solution: 'Define a method for creating an object (the factory method), but let subclasses override this method to decide which specific class to instantiate. This way, the client code works with the product interface, and subclasses provide the concrete implementation.' }, pt: { title: 'Factory Method', subtitle: 'Também conhecido como: Construtor Virtual', h2_intent: 'Intenção', p_intent: 'Fornece uma interface para criar objetos em uma superclasse, mas permite que as subclasses alterem o tipo de objetos que serão criados. Permite que uma classe adie a instanciação para as subclasses.', h2_problem: 'Problema', p_problem: 'Você tem uma classe que não pode antecipar a classe exata dos objetos que precisa criar. Por exemplo, um framework de documentos precisa criar diferentes tipos de documentos (texto, planilha, etc.), mas o framework em si não deve estar acoplado às classes concretas de documentos.', h2_solution: 'Solução', p_solution: 'Definir um método para criar um objeto (o factory method), mas deixar as subclasses sobrescreverem esse método para decidir qual classe específica instanciar. Dessa forma, o código cliente trabalha com a interface do produto, e as subclasses fornecem a implementação concreta.' } },
+                    { id: 'abstract_factory', image_url: 'https://images.pexels.com/photos/3184454/pexels-photo-3184454.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Abstract Factory', subtitle: 'Also known as: Kit', h2_intent: 'Intent', p_intent: 'Lets you produce families of related or dependent objects without specifying their concrete classes. It provides an interface for creating objects from each class of the product family.', h2_problem: 'Problem', p_problem: 'A system needs to be configured with one of multiple families of products (e.g., a UI toolkit that supports different look-and-feel standards like Motif, Presentation Manager, etc.). You want to ensure that the products from a chosen family are used together and not mixed with products from another family.', h2_solution: 'Solution', p_solution: 'Define an abstract factory interface with methods for creating each abstract product. Then, create concrete factory classes that implement this interface, each corresponding to a specific product family. The client code uses one of these factories to create all its necessary objects, ensuring compatibility.' }, pt: { title: 'Abstract Factory', subtitle: 'Também conhecido como: Kit', h2_intent: 'Intenção', p_intent: 'Permite produzir famílias de objetos relacionados ou dependentes sem especificar suas classes concretas. Ele fornece uma interface para criar objetos de cada classe da família de produtos.', h2_problem: 'Problema', p_problem: 'Um sistema precisa ser configurado com uma de várias famílias de produtos (ex: um kit de ferramentas de UI que suporta diferentes padrões de aparência, como Motif, Presentation Manager, etc.). Você quer garantir que os produtos de uma família escolhida sejam usados juntos e não misturados com produtos de outra família.', h2_solution: 'Solução', p_solution: 'Defina uma interface de fábrica abstrata com métodos para criar cada produto abstrato. Em seguida, crie classes de fábrica concretas que implementam essa interface, cada uma correspondendo a uma família de produtos específica. O código cliente usa uma dessas fábricas para criar todos os objetos necessários, garantindo a compatibilidade.' } },
+                    { id: 'builder', image_url: 'https://images.pexels.com/photos/1108101/pexels-photo-1108101.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Builder', subtitle: 'Separates object construction from its representation.', h2_intent: 'Intent', p_intent: 'Lets you construct complex objects step by step. This pattern allows you to produce different types and representations of an object using the same construction code.', h2_problem: 'Problem', p_problem: 'A constructor with many optional parameters or different configurations becomes unmanageable (a "telescoping constructor"). You need to create a complex object, but want to separate the construction logic from the final representation.', h2_solution: 'Solution', p_solution: 'Create a `Builder` class with methods for constructing the object step-by-step (e.g., `buildPartA()`, `buildPartB()`). A final `getResult()` method returns the finished object. A `Director` class can be used to define a specific sequence of building steps, making it easy to create common configurations.' }, pt: { title: 'Builder', subtitle: 'Separa a construção de um objeto de sua representação.', h2_intent: 'Intenção', p_intent: 'Permite construir objetos complexos passo a passo. Este padrão permite produzir diferentes tipos e representações de um objeto usando o mesmo código de construção.', h2_problem: 'Problema', p_problem: 'Um construtor com muitos parâmetros opcionais ou diferentes configurações se torna incontrolável (um "construtor telescópico"). Você precisa criar um objeto complexo, mas quer separar a lógica de construção da representação final.', h2_solution: 'Solução', p_solution: 'Crie uma classe `Builder` com métodos para construir o objeto passo a passo (ex: `buildPartA()`, `buildPartB()`). Um método final `getResult()` retorna o objeto finalizado. Uma classe `Director` pode ser usada para definir uma sequência específica de passos de construção, facilitando a criação de configurações comuns.' } },
+                    { id: 'prototype', image_url: 'https://images.pexels.com/photos/7317643/pexels-photo-7317643.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Prototype', subtitle: 'Also known as: Clone', h2_intent: 'Intent', p_intent: 'Lets you copy existing objects without making your code dependent on their classes. This is useful when the cost of creating an object is more expensive than copying it.', h2_problem: 'Problem', p_problem: 'You need to create new objects by copying an existing object, but you don\'t want your code to depend on the concrete classes of those objects. This is common when the classes to instantiate are specified at run-time.', h2_solution: 'Solution', p_solution: 'Create a common interface for all objects that support cloning, usually with a single `clone()` method. Each class implements the cloning logic itself. The client code can then clone any object that implements this interface without knowing its specific class.' }, pt: { title: 'Prototype', subtitle: 'Também conhecido como: Clone', h2_intent: 'Intenção', p_intent: 'Permite copiar objetos existentes sem que seu código dependa de suas classes. Isso é útil quando o custo de criar um objeto é mais caro do que copiá-lo.', h2_problem: 'Problema', p_problem: 'Você precisa criar novos objetos copiando um objeto existente, mas não quer que seu código dependa das classes concretas desses objetos. Isso é comum quando as classes a serem instanciadas são especificadas em tempo de execução.', h2_solution: 'Solução', p_solution: 'Crie uma interface comum para todos os objetos que suportam clonagem, geralmente com um único método `clone()`. Cada classe implementa a lógica de clonagem. O código cliente pode então clonar qualquer objeto que implemente essa interface sem conhecer sua classe específica.' } },
+                    { id: 'singleton', image_url: 'https://images.pexels.com/photos/1666012/pexels-photo-1666012.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Singleton', subtitle: 'Ensures a class has only one instance.', h2_intent: 'Intent', p_intent: 'Lets you ensure that a class has only one instance, while providing a global, single point of access to this instance.', h2_problem: 'Problem', p_problem: 'You need to ensure that a class has exactly one instance for the entire system, such as a database connection manager, a logger, or a configuration settings object. You also need an easy way for any part of the system to access this single instance.', h2_solution: 'Solution', p_solution: 'Make the class constructor private to prevent direct instantiation. Create a static method that acts as the global access point. This method creates the instance on its first call and stores it in a private static field, ensuring that all subsequent calls return the same cached object.' }, pt: { title: 'Singleton', subtitle: 'Garante que uma classe tenha apenas uma instância.', h2_intent: 'Intenção', p_intent: 'Permite garantir que uma classe tenha apenas uma instância, fornecendo um ponto de acesso único e global a essa instância.', h2_problem: 'Problema', p_problem: 'Você precisa garantir que uma classe tenha exatamente uma instância para todo o sistema, como um gerenciador de conexão de banco de dados, um logger ou um objeto de configurações. Você também precisa de uma maneira fácil para qualquer parte do sistema acessar essa única instância.', h2_solution: 'Solução', p_solution: 'Torne o construtor da classe privado para evitar a instanciação direta. Crie um método estático que atue como o ponto de acesso global. Este método cria a instância em sua primeira chamada e a armazena em um campo estático privado, garantindo que todas as chamadas subsequentes retornem o mesmo objeto em cache.' } },
+                    // Structural
+                    { id: 'adapter', image_url: 'https://images.pexels.com/photos/4009402/pexels-photo-4009402.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Adapter', subtitle: 'Also known as: Wrapper', h2_intent: 'Intent', p_intent: 'Allows objects with incompatible interfaces to collaborate. It acts as a translator between two different interfaces.', h2_problem: 'Problem', p_problem: 'You want to use an existing class (the adaptee), but its interface is not compatible with the rest of your code (the target interface). You cannot change the existing class, perhaps because it is part of a third-party library.', h2_solution: 'Solution', p_solution: 'Create an `Adapter` class that implements the target interface required by the client. The adapter holds an instance of the adaptee class and translates the calls from the target interface into calls on the adaptee’s interface.' }, pt: { title: 'Adapter', subtitle: 'Também conhecido como: Wrapper', h2_intent: 'Intenção', p_intent: 'Permite a colaboração de objetos com interfaces incompatíveis. Ele atua como um tradutor entre duas interfaces diferentes.', h2_problem: 'Problema', p_problem: 'Você quer usar uma classe existente (o adaptado), mas sua interface não é compatível com o resto do seu código (a interface alvo). Você não pode alterar a classe existente, talvez por fazer parte de uma biblioteca de terceiros.', h2_solution: 'Solução', p_solution: 'Crie uma classe `Adapter` que implemente a interface alvo exigida pelo cliente. O adaptador mantém uma instância da classe adaptada e traduz as chamadas da interface alvo em chamadas na interface do adaptado.' } },
+                    { id: 'bridge', image_url: 'https://images.pexels.com/photos/417344/pexels-photo-417344.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Bridge', subtitle: 'Decouples an abstraction from its implementation.', h2_intent: 'Intent', p_intent: 'Lets you split a large class or a set of closely related classes into two separate hierarchies—abstraction and implementation—which can then be developed independently of each other.', h2_problem: 'Problem', p_problem: 'You have a class hierarchy that is growing in two independent dimensions (e.g., shapes and colors). Using inheritance would lead to a combinatorial explosion of subclasses (`RedCircle`, `BlueCircle`, `RedSquare`, `BlueSquare`).', h2_solution: 'Solution', p_solution: 'Separate the two dimensions into two class hierarchies. The main hierarchy (Abstraction) will contain a reference to an object from the second hierarchy (Implementation). The abstraction can delegate work to the implementation object, and both hierarchies can be extended independently.' }, pt: { title: 'Bridge', subtitle: 'Desacopla uma abstração de sua implementação.', h2_intent: 'Intenção', p_intent: 'Permite dividir uma classe grande ou um conjunto de classes relacionadas em duas hierarquias separadas — abstração e implementação — que podem então ser desenvolvidas independentemente uma da outra.', h2_problem: 'Problema', p_problem: 'Você tem uma hierarquia de classes que está crescendo em duas dimensões independentes (ex: formas e cores). Usar herança levaria a uma explosão combinatória de subclasses (`CirculoVermelho`, `CirculoAzul`, `QuadradoVermelho`, `QuadradoAzul`).', h2_solution: 'Solução', p_solution: 'Separe as duas dimensões em duas hierarquias de classes. A hierarquia principal (Abstração) conterá uma referência a um objeto da segunda hierarquia (Implementação). A abstração pode delegar trabalho ao objeto de implementação, e ambas as hierarquias podem ser estendidas independentemente.' } },
+                    { id: 'composite', image_url: 'https://images.pexels.com/photos/142497/pexels-photo-142497.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Composite', subtitle: 'Compose objects into tree structures.', h2_intent: 'Intent', p_intent: 'Lets you compose objects into tree structures to represent part-whole hierarchies. Composite lets clients treat individual objects (leaves) and compositions of objects (composites) uniformly.', h2_problem: 'Problem', p_problem: 'You are working with a system that has a tree-like structure, such as a file system or a GUI with nested containers. You want to be able to perform operations on both individual items and entire branches of the tree in the same way.', h2_solution: 'Solution', p_solution: 'Define a common `Component` interface for both simple (leaf) and complex (composite) objects. The composite objects implement the same interface and can hold a collection of other components. When an operation is called on a composite, it delegates the call to its children.' }, pt: { title: 'Composite', subtitle: 'Compõe objetos em estruturas de árvore.', h2_intent: 'Intenção', p_intent: 'Permite compor objetos em estruturas de árvore para representar hierarquias parte-todo. O Composite permite que os clientes tratem objetos individuais (folhas) e composições de objetos (compostos) de maneira uniforme.', h2_problem: 'Problema', p_problem: 'Você está trabalhando com um sistema que tem uma estrutura em árvore, como um sistema de arquivos ou uma GUI com contêineres aninhados. Você quer ser capaz de realizar operações tanto em itens individuais quanto em ramos inteiros da árvore da mesma maneira.', h2_solution: 'Solução', p_solution: 'Defina uma interface `Component` comum para objetos simples (folha) e complexos (composto). Os objetos compostos implementam a mesma interface e podem conter uma coleção de outros componentes. Quando uma operação é chamada em um composto, ele delega a chamada para seus filhos.' } },
+                    { id: 'decorator', image_url: 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Decorator', subtitle: 'Also known as: Wrapper', h2_intent: 'Intent', p_intent: 'Lets you attach new behaviors or responsibilities to objects dynamically by placing them inside special wrapper objects that contain the same interface.', h2_problem: 'Problem', p_problem: 'You want to add functionality to an object, but you cannot or do not want to use subclassing. Subclassing is static and applies to all instances of a class, whereas you might need to add functionality to individual objects at runtime.', h2_solution: 'Solution', p_solution: 'Create a decorator class that implements the same interface as the object it wraps. The decorator holds a reference to the wrapped object and delegates calls to it. Before or after delegating, the decorator can add its own behavior.' }, pt: { title: 'Decorator', subtitle: 'Também conhecido como: Wrapper', h2_intent: 'Intenção', p_intent: 'Permite anexar novos comportamentos ou responsabilidades a objetos dinamicamente, colocando-os dentro de objetos invólucros especiais que contêm a mesma interface.', h2_problem: 'Problema', p_problem: 'Você quer adicionar funcionalidade a um objeto, mas não pode ou não quer usar herança. A herança é estática e se aplica a todas as instâncias de uma classe, enquanto você pode precisar adicionar funcionalidade a objetos individuais em tempo de execução.', h2_solution: 'Solução', p_solution: 'Crie uma classe decoradora que implemente a mesma interface do objeto que ela envolve. O decorador mantém uma referência ao objeto envolvido e delega chamadas a ele. Antes ou depois de delegar, o decorador pode adicionar seu próprio comportamento.' } },
+                    { id: 'facade', image_url: 'https://images.pexels.com/photos/2088019/pexels-photo-2088019.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Facade', subtitle: 'Provides a simplified interface to a complex system.', h2_intent: 'Intent', p_intent: 'Provides a unified, simplified interface to a set of interfaces in a complex subsystem. Facade defines a higher-level interface that makes the subsystem easier to use.', h2_problem: 'Problem', p_problem: 'A system is very complex, with many interacting classes and dependencies. You want to provide a simple way for client code to interact with this subsystem without needing to understand all its internal complexities.', h2_solution: 'Solution', p_solution: 'Create a `Facade` class that provides a few simple methods for common client tasks. The facade delegates the client\'s requests to the appropriate objects within the subsystem, hiding the complexity from the client.' }, pt: { title: 'Facade', subtitle: 'Fornece uma interface simplificada para um sistema complexo.', h2_intent: 'Intenção', p_intent: 'Fornece uma interface unificada e simplificada para um conjunto de interfaces em um subsistema complexo. O Facade define uma interface de nível superior que torna o subsistema mais fácil de usar.', h2_problem: 'Problema', p_problem: 'Um sistema é muito complexo, com muitas classes e dependências interagindo. Você quer fornecer uma maneira simples para o código cliente interagir com este subsistema sem precisar entender todas as suas complexidades internas.', h2_solution: 'Solução', p_solution: 'Crie uma classe `Facade` que fornece alguns métodos simples para tarefas comuns do cliente. A fachada delega as solicitações do cliente aos objetos apropriados dentro do subsistema, escondendo a complexidade do cliente.' } },
+                    { id: 'flyweight', image_url: 'https://images.pexels.com/photos/1528640/pexels-photo-1528640.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Flyweight', subtitle: 'Reduces memory usage by sharing state.', h2_intent: 'Intent', p_intent: 'Use sharing to support large numbers of fine-grained objects efficiently. It minimizes memory usage by sharing as much data as possible with other similar objects.', h2_problem: 'Problem', p_problem: 'An application needs to create a huge number of objects that have some shared state. Storing all this data in each object would consume too much memory (e.g., rendering millions of trees in a game, where each tree has the same mesh and texture).', h2_solution: 'Solution', p_solution: 'Separate the state of an object into intrinsic (shared, context-independent) and extrinsic (unique, context-dependent) parts. The intrinsic state is stored in a shared flyweight object, while the extrinsic state is passed to the flyweight\'s methods by the client.' }, pt: { title: 'Flyweight', subtitle: 'Reduz o uso de memória compartilhando estado.', h2_intent: 'Intenção', p_intent: 'Usar o compartilhamento para suportar um grande número de objetos de granularidade fina de forma eficiente. Ele minimiza o uso de memória compartilhando o máximo de dados possível com outros objetos semelhantes.', h2_problem: 'Problema', p_problem: 'Uma aplicação precisa criar um número enorme de objetos que têm algum estado compartilhado. Armazenar todos esses dados em cada objeto consumiria muita memória (ex: renderizar milhões de árvores em um jogo, onde cada árvore tem a mesma malha e textura).', h2_solution: 'Solução', p_solution: 'Separe o estado de um objeto em partes intrínsecas (compartilhadas, independentes do contexto) e extrínsecas (únicas, dependentes do contexto). O estado intrínseco é armazenado em um objeto flyweight compartilhado, enquanto o estado extrínseco é passado para os métodos do flyweight pelo cliente.' } },
+                    { id: 'proxy', image_url: 'https://images.pexels.com/photos/7609733/pexels-photo-7609733.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Proxy', subtitle: 'Also known as: Surrogate', h2_intent: 'Intent', p_intent: 'Lets you provide a substitute or placeholder for another object. A proxy controls access to the original object, allowing you to perform something either before or after the request gets through to the original object.', h2_problem: 'Problem', p_problem: 'You need to control access to an object. This could be for various reasons, such as lazy initialization (virtual proxy), access control (protection proxy), logging requests (logging proxy), or handling remote communication (remote proxy).', h2_solution: 'Solution', p_solution: 'Create a `Proxy` class that implements the same interface as the real service object. The proxy holds a reference to the real object and can manage its lifecycle. When a client calls a method on the proxy, it can perform its extra logic and then delegate the call to the real object.' }, pt: { title: 'Proxy', subtitle: 'Também conhecido como: Surrogate', h2_intent: 'Intenção', p_intent: 'Permite fornecer um substituto ou placeholder para outro objeto. Um proxy controla o acesso ao objeto original, permitindo que você execute algo antes ou depois que a solicitação chegue ao objeto original.', h2_problem: 'Problema', p_problem: 'Você precisa controlar o acesso a um objeto. Isso pode ser por vários motivos, como inicialização tardia (proxy virtual), controle de acesso (proxy de proteção), registro de solicitações (proxy de log) ou tratamento de comunicação remota (proxy remoto).', h2_solution: 'Solução', p_solution: 'Crie uma classe `Proxy` que implemente a mesma interface do objeto de serviço real. O proxy mantém uma referência ao objeto real e pode gerenciar seu ciclo de vida. Quando um cliente chama um método no proxy, ele pode executar sua lógica extra e depois delegar a chamada ao objeto real.' } },
+                    // Behavioral
+                    { id: 'chain', image_url: 'https://images.pexels.com/photos/710759/pexels-photo-710759.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Chain of Responsibility', subtitle: 'Passes a request along a chain of handlers.', h2_intent: 'Intent', p_intent: 'Avoid coupling the sender of a request to its receiver by giving more than one object a chance to handle the request. Chain the receiving objects and pass the request along the chain until an object handles it.', h2_problem: 'Problem', p_problem: 'You have a request that can be processed by different handlers depending on its type or content. You don\'t want the client (sender) to know about all possible handlers or the logic for choosing one.', h2_solution: 'Solution', p_solution: 'Structure potential handlers into a chain. Each handler contains a reference to the next handler in the chain. It decides whether to process the request or pass it to the next handler. The client only sends the request to the first handler in the chain.' }, pt: { title: 'Chain of Responsibility', subtitle: 'Passa uma requisição ao longo de uma cadeia de handlers.', h2_intent: 'Intenção', p_intent: 'Evitar o acoplamento do remetente de uma requisição ao seu receptor, dando a mais de um objeto a chance de tratar a requisição. Encadear os objetos receptores e passar a requisição ao longo da cadeia até que um objeto a trate.', h2_problem: 'Problema', p_problem: 'Você tem uma requisição que pode ser processada por diferentes handlers dependendo do seu tipo ou conteúdo. Você não quer que o cliente (remetente) conheça todos os handlers possíveis ou a lógica para escolher um.', h2_solution: 'Solução', p_solution: 'Estruture os potenciais handlers em uma cadeia. Cada handler contém uma referência para o próximo handler na cadeia. Ele decide se processa a requisição ou a passa para o próximo handler. O cliente envia a requisição apenas para o primeiro handler da cadeia.' } },
+                    { id: 'command', image_url: 'https://images.pexels.com/photos/189333/pexels-photo-189333.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Command', subtitle: 'Turns a request into a stand-alone object.', h2_intent: 'Intent', p_intent: 'Encapsulate a request as an object, thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations.', h2_problem: 'Problem', p_problem: 'You need to decouple an object that invokes an operation from the object that knows how to perform it. This is useful for implementing callbacks, queuing operations, or supporting undo/redo functionality.', h2_solution: 'Solution', p_solution: 'Create a `Command` interface with an `execute()` method. Concrete command classes encapsulate a request by binding together a receiver object with a set of actions on that receiver. An `Invoker` object holds a command and asks it to execute the request.' }, pt: { title: 'Command', subtitle: 'Transforma uma requisição em um objeto independente.', h2_intent: 'Intenção', p_intent: 'Encapsular uma requisição como um objeto, permitindo parametrizar clientes com diferentes requisições, enfileirar ou registrar requisições e suportar operações que podem ser desfeitas.', h2_problem: 'Problema', p_problem: 'Você precisa desacoplar um objeto que invoca uma operação do objeto que sabe como realizá-la. Isso é útil para implementar callbacks, enfileirar operações ou suportar a funcionalidade de desfazer/refazer.', h2_solution: 'Solução', p_solution: 'Crie uma interface `Command` com um método `execute()`. Classes de comando concretas encapsulam uma requisição, ligando um objeto receptor a um conjunto de ações nesse receptor. Um objeto `Invoker` mantém um comando e solicita que ele execute a requisição.' } },
+                    { id: 'iterator', image_url: 'https://images.pexels.com/photos/1578750/pexels-photo-1578750.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Iterator', subtitle: 'Access elements of a collection without exposing its representation.', h2_intent: 'Intent', p_intent: 'Provide a way to access the elements of an aggregate object sequentially without exposing its underlying representation (like list, stack, tree, etc.).', h2_problem: 'Problem', p_problem: 'You need a uniform way to traverse different types of collections. The client code should not be coupled to the specific implementation details of each collection.', h2_solution: 'Solution', p_solution: 'Extract the traversal logic from the collection into a separate `Iterator` object. The iterator provides a common interface for traversal (e.g., `hasNext()`, `next()`), while the collection provides a method to create an iterator for itself. This decouples the client from the collection\'s internal structure.' }, pt: { title: 'Iterator', subtitle: 'Acessa elementos de uma coleção sem expor sua representação.', h2_intent: 'Intenção', p_intent: 'Fornecer uma maneira de acessar os elementos de um objeto agregado sequencialmente sem expor sua representação subjacente (como lista, pilha, árvore, etc.).', h2_problem: 'Problema', p_problem: 'Você precisa de uma maneira uniforme para percorrer diferentes tipos de coleções. O código do cliente não deve estar acoplado aos detalhes específicos de implementação de cada coleção.', h2_solution: 'Solução', p_solution: 'Extraia a lógica de travessia da coleção para um objeto `Iterator` separado. O iterador fornece uma interface comum para a travessia (ex: `hasNext()`, `next()`), enquanto a coleção fornece um método para criar um iterador para si mesma. Isso desacopla o cliente da estrutura interna da coleção.' } },
+                    { id: 'mediator', image_url: 'https://images.pexels.com/photos/59523/pexels-photo-59523.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Mediator', subtitle: 'Reduces chaotic dependencies between objects.', h2_intent: 'Intent', p_intent: 'Define an object that encapsulates how a set of objects interact. Mediator promotes loose coupling by keeping objects from referring to each other explicitly, and it lets you vary their interaction independently.', h2_problem: 'Problem', p_problem: 'You have a set of objects that communicate with each other directly, creating a complex web of dependencies (a "many-to-many" relationship). This makes the system hard to understand, maintain, and reuse.', h2_solution: 'Solution', p_solution: 'Create a central `Mediator` object that handles all communication between the component objects (colleagues). Colleagues now only know about the mediator, not each other. When a colleague\'s state changes, it notifies the mediator, which then notifies other relevant colleagues.' }, pt: { title: 'Mediator', subtitle: 'Reduz dependências caóticas entre objetos.', h2_intent: 'Intenção', p_intent: 'Definir um objeto que encapsula como um conjunto de objetos interage. O Mediator promove o baixo acoplamento, impedindo que os objetos se refiram explicitamente uns aos outros, e permite que você varie sua interação independentemente.', h2_problem: 'Problema', p_problem: 'Você tem um conjunto de objetos que se comunicam diretamente, criando uma teia complexa de dependências (uma relação "muitos-para-muitos"). Isso torna o sistema difícil de entender, manter e reutilizar.', h2_solution: 'Solução', p_solution: 'Crie um objeto `Mediator` central que lida com toda a comunicação entre os objetos componentes (colegas). Os colegas agora só conhecem o mediador, não uns aos outros. Quando o estado de um colega muda, ele notifica o mediador, que então notifica outros colegas relevantes.' } },
+                    { id: 'memento', image_url: 'https://images.pexels.com/photos/390089/pexels-photo-390089.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Memento', subtitle: 'Saves and restores the previous state of an object.', h2_intent: 'Intent', p_intent: 'Without violating encapsulation, capture and externalize an object\'s internal state so that the object can be restored to this state later. This is used to implement undo mechanisms.', h2_problem: 'Problem', p_problem: 'You need to save snapshots of an object\'s state to implement features like "undo" or "rollback". However, making the object\'s state public to save it would violate encapsulation.', h2_solution: 'Solution', p_solution: 'The pattern uses three objects: `Originator` (the object with the state), `Memento` (an object that stores the state), and `Caretaker` (an object that holds the memento). The originator can create a memento of its current state. The caretaker can request this memento and hold onto it, but it cannot access its contents. Later, the caretaker can pass the memento back to the originator to restore its state.' }, pt: { title: 'Memento', subtitle: 'Salva e restaura o estado anterior de um objeto.', h2_intent: 'Intenção', p_intent: 'Sem violar o encapsulamento, capturar e externalizar o estado interno de um objeto para que o objeto possa ser restaurado a este estado mais tarde. É usado para implementar mecanismos de "desfazer".', h2_problem: 'Problema', p_problem: 'Você precisa salvar "snapshots" do estado de um objeto para implementar funcionalidades como "desfazer" ou "reverter". No entanto, tornar o estado do objeto público para salvá-lo violaria o encapsulamento.', h2_solution: 'Solução', p_solution: 'O padrão usa três objetos: `Originator` (o objeto com o estado), `Memento` (um objeto que armazena o estado) e `Caretaker` (um objeto que guarda o memento). O originador pode criar um memento de seu estado atual. O cuidador pode solicitar este memento e guardá-lo, mas não pode acessar seu conteúdo. Mais tarde, o cuidador pode passar o memento de volta ao originador para restaurar seu estado.' } },
+                    { id: 'observer', image_url: 'https://images.pexels.com/photos/220201/pexels-photo-220201.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Observer', subtitle: 'Also known as: Publish-Subscribe', h2_intent: 'Intent', p_intent: 'Define a one-to-many dependency between objects so that when one object (the subject) changes state, all its dependents (observers) are notified and updated automatically.', h2_problem: 'Problem', p_problem: 'You have an object whose state is of interest to other objects. You want to ensure that these other objects are notified of any changes without creating a tight coupling between the subject and its observers.', h2_solution: 'Solution', p_solution: 'Create a `Subject` class that maintains a list of its `Observer` dependents. The subject provides methods to attach and detach observers. When the subject\'s state changes, it iterates through its list of observers and calls a notification method on each one.' }, pt: { title: 'Observer', subtitle: 'Também conhecido como: Publish-Subscribe', h2_intent: 'Intenção', p_intent: 'Definir uma dependência um-para-muitos entre objetos para que, quando um objeto (o sujeito) muda de estado, todos os seus dependentes (observadores) sejam notificados e atualizados automaticamente.', h2_problem: 'Problema', p_problem: 'Você tem um objeto cujo estado é de interesse para outros objetos. Você quer garantir que esses outros objetos sejam notificados de quaisquer alterações sem criar um acoplamento forte entre o sujeito e seus observadores.', h2_solution: 'Solução', p_solution: 'Crie uma classe `Subject` que mantém uma lista de seus dependentes `Observer`. O sujeito fornece métodos para anexar e desanexar observadores. Quando o estado do sujeito muda, ele itera através de sua lista de observadores e chama um método de notificação em cada um.' } },
+                    { id: 'state', image_url: 'https://images.pexels.com/photos/1105325/pexels-photo-1105325.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'State', subtitle: 'Lets an object alter its behavior when its internal state changes.', h2_intent: 'Intent', p_intent: 'Allow an object to alter its behavior when its internal state changes. The object will appear to change its class.', h2_problem: 'Problem', p_problem: 'An object\'s behavior is heavily dependent on its current state. Using large `if/else` or `switch` statements to handle state-specific behavior becomes complex and hard to maintain as new states are added.', h2_solution: 'Solution', p_solution: 'Create separate classes for each possible state of the object. Each state class implements a common interface. The main object (Context) holds a reference to a state object that represents its current state and delegates all state-specific work to it. Transitions between states are handled by creating new state objects.' }, pt: { title: 'State', subtitle: 'Permite que um objeto altere seu comportamento quando seu estado interno muda.', h2_intent: 'Intenção', p_intent: 'Permitir que um objeto altere seu comportamento quando seu estado interno muda. O objeto parecerá mudar de classe.', h2_problem: 'Problema', p_problem: 'O comportamento de um objeto é fortemente dependente de seu estado atual. Usar grandes condicionais `if/else` ou `switch` para lidar com o comportamento específico do estado torna-se complexo e difícil de manter à medida que novos estados são adicionados.', h2_solution: 'Solução', p_solution: 'Crie classes separadas para cada estado possível do objeto. Cada classe de estado implementa uma interface comum. O objeto principal (Contexto) mantém uma referência a um objeto de estado que representa seu estado atual e delega todo o trabalho específico do estado para ele. As transições entre estados são tratadas pela criação de novos objetos de estado.' } },
+                    { id: 'strategy', image_url: 'https://images.pexels.com/photos/260024/pexels-photo-260024.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Strategy', subtitle: 'Also known as: Policy', h2_intent: 'Intent', p_intent: 'Lets you define a family of algorithms, put each of them into a separate class, and make their objects interchangeable. This allows the algorithm to vary independently from clients that use it.', h2_problem: 'Problem', p_problem: 'You have a class that needs to perform a task in different ways (e.g., sorting, compressing, validating). Hardcoding all variants into the class makes it complex and difficult to extend with new variants.', h2_solution: 'Solution', p_solution: 'Define a common `Strategy` interface for all algorithm variants. Create concrete strategy classes that implement this interface. The main class (Context) holds a reference to a strategy object and can be configured with different strategies at runtime.' }, pt: { title: 'Strategy', subtitle: 'Também conhecido como: Policy', h2_intent: 'Intenção', p_intent: 'Permite definir uma família de algoritmos, colocar cada um deles em uma classe separada e tornar seus objetos intercambiáveis. Isso permite que o algoritmo varie independentemente dos clientes que o utilizam.', h2_problem: 'Problema', p_problem: 'Você tem uma classe que precisa realizar uma tarefa de diferentes maneiras (ex: ordenar, comprimir, validar). Codificar todas as variantes na classe a torna complexa e difícil de estender com novas variantes.', h2_solution: 'Solução', p_solution: 'Defina uma interface `Strategy` comum para todas as variantes do algoritmo. Crie classes de estratégia concretas que implementam essa interface. A classe principal (Contexto) mantém uma referência a um objeto de estratégia e pode ser configurada com diferentes estratégias em tempo de execução.' } },
+                    { id: 'template_method', image_url: 'https://images.pexels.com/photos/896766/pexels-photo-896766.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Template Method', subtitle: 'Defines the skeleton of an algorithm in a superclass.', h2_intent: 'Intent', p_intent: 'Define the skeleton of an algorithm in a superclass but lets subclasses override specific steps of the algorithm without changing its structure.', h2_problem: 'Problem', p_problem: 'You have several classes that implement similar algorithms, but with minor variations. Duplicating the common algorithm structure across all classes leads to code duplication and maintenance issues.', h2_solution: 'Solution', p_solution: 'Create an abstract base class with a `templateMethod()` that defines the algorithm\'s skeleton. This method calls a series of abstract or overridable "primitive" methods. Subclasses can then provide their own implementations for these primitive methods, customizing the algorithm while preserving its overall structure.' }, pt: { title: 'Template Method', subtitle: 'Define o esqueleto de um algoritmo em uma superclasse.', h2_intent: 'Intenção', p_intent: 'Define o esqueleto de um algoritmo em uma superclasse, mas permite que subclasses sobrescrevam passos específicos do algoritmo sem alterar sua estrutura.', h2_problem: 'Problema', p_problem: 'Você tem várias classes que implementam algoritmos semelhantes, mas com pequenas variações. Duplicar a estrutura do algoritmo comum em todas as classes leva à duplicação de código e problemas de manutenção.', h2_solution: 'Solução', p_solution: 'Crie uma classe base abstrata com um `templateMethod()` que define o esqueleto do algoritmo. Este método chama uma série de métodos "primitivos" abstratos ou sobrescrevível. As subclasses podem então fornecer suas próprias implementações para esses métodos primitivos, personalizando o algoritmo enquanto preservam sua estrutura geral.' } },
+                    { id: 'visitor', image_url: 'https://images.pexels.com/photos/1086329/pexels-photo-1086329.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', en: { title: 'Visitor', subtitle: 'Separates algorithms from the objects on which they operate.', h2_intent: 'Intent', p_intent: 'Represent an operation to be performed on the elements of an object structure. Visitor lets you define a new operation without changing the classes of the elements on which it operates.', h2_problem: 'Problem', p_problem: 'You need to perform many different and unrelated operations on a complex object structure (e.g., a tree). Adding a new method for each operation to all element classes would "pollute" their interfaces and make them hard to maintain.', h2_solution: 'Solution', p_solution: 'Create a `Visitor` interface with a `visit()` method for each concrete element class in the structure. Each element class gets an `accept()` method that takes a visitor as an argument. The element calls the visitor\'s method that corresponds to its own class, achieving double dispatch. This allows you to add new operations by creating new visitor classes.' }, pt: { title: 'Visitor', subtitle: 'Separa algoritmos dos objetos nos quais eles operam.', h2_intent: 'Intenção', p_intent: 'Representar uma operação a ser realizada nos elementos de uma estrutura de objetos. O Visitor permite definir uma nova operação sem alterar as classes dos elementos nos quais ela opera.', h2_problem: 'Problema', p_problem: 'Você precisa realizar muitas operações diferentes e não relacionadas em uma estrutura de objetos complexa (ex: uma árvore). Adicionar um novo método para cada operação a todas as classes de elementos "poluiria" suas interfaces e as tornaria difíceis de manter.', h2_solution: 'Solução', p_solution: 'Crie uma interface `Visitor` com um método `visit()` para cada classe de elemento concreta na estrutura. Cada classe de elemento obtém um método `accept()` que recebe um visitante como argumento. O elemento chama o método do visitante que corresponde à sua própria classe, alcançando o despacho duplo. Isso permite adicionar novas operações criando novas classes de visitantes.' } },
+                ];
+            },
+
+            getAllCodeSnippets() {
+                // All code snippets are stored here
+                return {
+                    factory: { csharp: `// Product
+public interface ITransport { string Deliver(); }
+// Concrete Products
+public class Truck : ITransport { public string Deliver() => "Delivery by land."; }
+public class Ship : ITransport { public string Deliver() => "Delivery by sea."; }
+// Creator
+public abstract class Logistics {
+    public abstract ITransport CreateTransport();
+    public string PlanDelivery() => "Logistics: " + CreateTransport().Deliver();
+}
+// Concrete Creators
+public class RoadLogistics : Logistics { public override ITransport CreateTransport() => new Truck(); }
+public class SeaLogistics : Logistics { public override ITransport CreateTransport() => new Ship(); }`, java: `// Product
+interface Transport { void deliver(); }
+// Concrete Products
+class Truck implements Transport { public void deliver() { System.out.println("Delivering by land."); } }
+class Ship implements Transport { public void deliver() { System.out.println("Delivering by sea."); } }
+// Creator
+abstract class Logistics {
+    public abstract Transport createTransport();
+    public void planDelivery() { createTransport().deliver(); }
+}
+// Concrete Creators
+class RoadLogistics extends Logistics { public Transport createTransport() { return new Truck(); } }
+class SeaLogistics extends Logistics { public Transport createTransport() { return new Ship(); } }` },
+                    abstract_factory: { csharp: `// Abstract Products
+public interface IChair { string SitOn(); }
+public interface ISofa { string LieOn(); }
+// Concrete Products
+public class ModernChair : IChair { public string SitOn() => "Sitting on a modern chair."; }
+public class VictorianSofa : ISofa { public string LieOn() => "Lying on a victorian sofa."; }
+// Abstract Factory
+public interface IFurnitureFactory { IChair CreateChair(); ISofa CreateSofa(); }
+// Concrete Factories
+public class ModernFurnitureFactory : IFurnitureFactory {
+    public IChair CreateChair() => new ModernChair();
+    public ISofa CreateSofa() => new ModernSofa(); // Assuming ModernSofa exists
+}
+public class VictorianFurnitureFactory : IFurnitureFactory {
+    public IChair CreateChair() => new VictorianChair(); // Assuming VictorianChair exists
+    public ISofa CreateSofa() => new VictorianSofa();
+}`, java: `// Abstract Products
+interface Chair { void sitOn(); }
+interface Sofa { void lieOn(); }
+// Concrete Products
+class ModernChair implements Chair { public void sitOn() { System.out.println("Sitting on a modern chair."); } }
+class VictorianSofa implements Sofa { public void lieOn() { System.out.println("Lying on a victorian sofa."); } }
+// Abstract Factory
+interface FurnitureFactory { Chair createChair(); Sofa createSofa(); }
+// Concrete Factories
+class ModernFurnitureFactory implements FurnitureFactory {
+    public Chair createChair() { return new ModernChair(); }
+    public Sofa createSofa() { return new ModernSofa(); } // Assuming ModernSofa exists
+}
+class VictorianFurnitureFactory implements FurnitureFactory {
+    public Chair createChair() { return new VictorianChair(); } // Assuming VictorianChair exists
+    public Sofa createSofa() { return new VictorianSofa(); }
+}` },
+                    builder: { csharp: `// Product
+public class House {
+    private System.Collections.Generic.List<string> parts = new();
+    public void Add(string part) => parts.Add(part);
+}
+// Builder
+public interface IHouseBuilder { void BuildWalls(); void BuildDoors(); House GetHouse(); }
+// Concrete Builder
+public class StoneHouseBuilder : IHouseBuilder {
+    private House _house = new House();
+    public void BuildWalls() => _house.Add("Stone Walls");
+    public void BuildDoors() => _house.Add("Wooden Door");
+    public House GetHouse() => _house;
+}
+// Director
+public class Director { public void Construct(IHouseBuilder builder) { builder.BuildWalls(); builder.BuildDoors(); } }`, java: `// Product
+class House {
+    public java.util.List<String> parts = new java.util.ArrayList<>();
+    public void add(String part) { parts.add(part); }
+}
+// Builder
+interface HouseBuilder { void buildWalls(); void buildDoors(); House getResult(); }
+// Concrete Builder
+class StoneHouseBuilder implements HouseBuilder {
+    private House house = new House();
+    public void buildWalls() { house.add("Stone Walls"); }
+    public void buildDoors() { house.add("Wooden Door"); }
+    public House getResult() { return house; }
+}
+// Director
+class Director { public void construct(HouseBuilder builder) { builder.buildWalls(); builder.buildDoors(); } }` },
+                    prototype: { csharp: `public abstract class Shape {
+    public int X, Y; public string Color;
+    public Shape() {}
+    public Shape(Shape source) { X = source.X; Y = source.Y; Color = source.Color; }
+    public abstract Shape Clone();
+}
+public class Rectangle : Shape {
+    public int Width, Height;
+    public Rectangle() {}
+    public Rectangle(Rectangle source) : base(source) { Width = source.Width; Height = source.Height; }
+    public override Shape Clone() => new Rectangle(this);
+}`, java: `abstract class Shape {
+    public int x, y; public String color;
+    public Shape() {}
+    public Shape(Shape source) { this.x = source.x; this.y = source.y; this.color = source.color; }
+    public abstract Shape clone();
+}
+class Rectangle extends Shape {
+    public int width, height;
+    public Rectangle() {}
+    public Rectangle(Rectangle source) { super(source); this.width = source.width; this.height = source.height; }
+    @Override public Shape clone() { return new Rectangle(this); }
+}` },
+                    singleton: { csharp: `public sealed class Singleton {
+    private static readonly object _lock = new object();
+    private static Singleton _instance;
+    private Singleton() { }
+    public static Singleton GetInstance() {
+        if (_instance == null) {
+            lock (_lock) {
+                if (_instance == null) _instance = new Singleton();
+            }
+        }
+        return _instance;
+    }
+}`, java: `public final class Singleton {
+    private static volatile Singleton instance;
+    private Singleton() {}
+    public static Singleton getInstance() {
+        Singleton result = instance;
+        if (result == null) {
+            synchronized (Singleton.class) {
+                result = instance;
+                if (result == null) instance = result = new Singleton();
+            }
+        }
+        return result;
+    }
+}` },
+                    adapter: { csharp: `// Target
+public interface IJsonProcessor { string ProcessJson(string json); }
+// Adaptee
+public class XmlProcessor { public string ProcessXml(string xml) => "Processed XML"; }
+// Adapter
+public class XmlAdapter : IJsonProcessor {
+    private readonly XmlProcessor _adaptee = new XmlProcessor();
+    public string ProcessJson(string json) {
+        string xml = json; // Pretend conversion
+        return _adaptee.ProcessXml(xml);
+    }
+}`, java: `// Target
+interface JsonProcessor { String processJson(String json); }
+// Adaptee
+class XmlProcessor { public String processXml(String xml) { return "Processed XML"; } }
+// Adapter
+class XmlAdapter implements JsonProcessor {
+    private final XmlProcessor adaptee = new XmlProcessor();
+    public String processJson(String json) {
+        String xml = json; // Pretend conversion
+        return adaptee.processXml(xml);
+    }
+}` },
+                    bridge: { csharp: `// Abstraction
+public abstract class Shape {
+    protected IColor color;
+    public Shape(IColor color) { this.color = color; }
+    public abstract string Draw();
+}
+public class Circle : Shape {
+    public Circle(IColor color) : base(color) {}
+    public override string Draw() => "Circle in " + color.Fill();
+}
+// Implementor
+public interface IColor { string Fill(); }
+public class Red : IColor { public string Fill() => "Red"; }
+public class Blue : IColor { public string Fill() => "Blue"; }`, java: `// Abstraction
+abstract class Shape {
+    protected Color color;
+    public Shape(Color color) { this.color = color; }
+    abstract public String draw();
+}
+class Circle extends Shape {
+    public Circle(Color color) { super(color); }
+    public String draw() { return "Circle in " + color.fill(); }
+}
+// Implementor
+interface Color { String fill(); }
+class Red implements Color { public String fill() { return "Red"; } }
+class Blue implements Color { public String fill() { return "Blue"; } }` },
+                    composite: { csharp: `// Component
+public abstract class Graphic { public abstract void Draw(); }
+// Leaf
+public class Dot : Graphic { public override void Draw() { /* Draw dot */ } }
+// Composite
+public class CompositeGraphic : Graphic {
+    private System.Collections.Generic.List<Graphic> children = new();
+    public void Add(Graphic child) => children.Add(child);
+    public override void Draw() { foreach(var child in children) child.Draw(); }
+}`, java: `// Component
+interface Graphic { void draw(); }
+// Leaf
+class Dot implements Graphic { public void draw() { /* Draw dot */ } }
+// Composite
+class CompositeGraphic implements Graphic {
+    private java.util.List<Graphic> children = new java.util.ArrayList<>();
+    public void add(Graphic child) { children.add(child); }
+    public void draw() { for(Graphic child : children) child.draw(); }
+}` },
+                    decorator: { csharp: `// Component
+public interface IDataSource { void WriteData(string data); string ReadData(); }
+// Concrete Component
+public class FileDataSource : IDataSource { public void WriteData(string data){} public string ReadData(){return "";} }
+// Base Decorator
+public class DataSourceDecorator : IDataSource {
+    protected IDataSource wrappee;
+    public DataSourceDecorator(IDataSource source) { this.wrappee = source; }
+    public virtual void WriteData(string data) => wrappee.WriteData(data);
+    public virtual string ReadData() => wrappee.ReadData();
+}
+// Concrete Decorator
+public class EncryptionDecorator : DataSourceDecorator {
+    public EncryptionDecorator(IDataSource source) : base(source) {}
+    public override void WriteData(string data) {
+        // Encrypt data then call base
+        base.WriteData(data);
+    }
+}`, java: `// Component
+interface DataSource { void writeData(String data); String readData(); }
+// Concrete Component
+class FileDataSource implements DataSource { public void writeData(String data){} public String readData(){return "";} }
+// Base Decorator
+class DataSourceDecorator implements DataSource {
+    protected DataSource wrappee;
+    public DataSourceDecorator(DataSource source) { this.wrappee = source; }
+    public void writeData(String data) { wrappee.writeData(data); }
+    public String readData() { return wrappee.readData(); }
+}
+// Concrete Decorator
+class EncryptionDecorator extends DataSourceDecorator {
+    public EncryptionDecorator(DataSource source) { super(source); }
+    public void writeData(String data) {
+        // Encrypt data then call super
+        super.writeData(data);
+    }
+}` },
+                    facade: { csharp: `// Complex Subsystem Parts
+public class VideoConverter { public void Convert(string f) {} }
+public class AudioMixer { public void Mix() {} }
+// Facade
+public class ConversionFacade {
+    public void ConvertVideo(string fileName, string format) {
+        new VideoConverter().Convert(fileName);
+        new AudioMixer().Mix();
+        System.Console.WriteLine("Conversion completed.");
+    }
+}`, java: `// Complex Subsystem Parts
+class VideoConverter { public void convert(String f){} }
+class AudioMixer { public void mix(){} }
+// Facade
+class ConversionFacade {
+    public void convertVideo(String fileName, String format) {
+        new VideoConverter().convert(fileName);
+        new AudioMixer().mix();
+        System.out.println("Conversion completed.");
+    }
+}` },
+                    flyweight: { csharp: `// Flyweight
+public class TreeType {
+    public string Name, Color; // Intrinsic state
+    public TreeType(string name, string color) { Name = name; Color = color; }
+}
+// Flyweight Factory
+public class TreeFactory {
+    private static System.Collections.Generic.List<TreeType> treeTypes = new();
+    public static TreeType GetTreeType(string name, string color) {
+        TreeType type = treeTypes.Find(t => t.Name == name && t.Color == color);
+        if (type == null) {
+            type = new TreeType(name, color);
+            treeTypes.Add(type);
+        }
+        return type;
+    }
+}
+// Context
+public class Tree {
+    private int x, y; // Extrinsic state
+    private TreeType type;
+    public Tree(int x, int y, TreeType type) { this.x = x; this.y = y; this.type = type; }
+}`, java: `// Flyweight
+class TreeType {
+    public final String name, color; // Intrinsic state
+    public TreeType(String name, String color) { this.name = name; this.color = color; }
+}
+// Flyweight Factory
+class TreeFactory {
+    static java.util.Map<String, TreeType> treeTypes = new java.util.HashMap<>();
+    public static TreeType getTreeType(String name, String color) {
+        String key = name + "_" + color;
+        TreeType result = treeTypes.get(key);
+        if (result == null) {
+            result = new TreeType(name, color);
+            treeTypes.put(key, result);
+        }
+        return result;
+    }
+}
+// Context
+class Tree {
+    private int x, y; // Extrinsic state
+    private TreeType type;
+    public Tree(int x, int y, TreeType type) { this.x = x; this.y = y; this.type = type; }
+}` },
+                    proxy: { csharp: `// Subject
+public interface IServer { void Request(); }
+// Real Subject
+public class RealServer : IServer { public void Request() => System.Console.WriteLine("Handling request."); }
+// Proxy
+public class ProxyServer : IServer {
+    private RealServer _realServer;
+    public void Request() {
+        if (CheckAccess()) {
+            _realServer ??= new RealServer();
+            _realServer.Request();
+        }
+    }
+    private bool CheckAccess() => true; // Access control logic
+}`, java: `// Subject
+interface Server { void request(); }
+// Real Subject
+class RealServer implements Server { public void request() { System.out.println("Handling request."); } }
+// Proxy
+class ProxyServer implements Server {
+    private RealServer realServer;
+    public void request() {
+        if (checkAccess()) {
+            if (realServer == null) realServer = new RealServer();
+            realServer.request();
+        }
+    }
+    private boolean checkAccess() { return true; } // Access control logic
+}` },
+                    chain: { csharp: `// Handler
+public interface IHandler { IHandler SetNext(IHandler h); object Handle(object request); }
+// Abstract Handler
+public abstract class BaseHandler : IHandler {
+    private IHandler _next;
+    public IHandler SetNext(IHandler h) { _next = h; return h;}
+    public virtual object Handle(object request) => _next?.Handle(request);
+}
+// Concrete Handlers
+public class AuthHandler : BaseHandler {
+    public override object Handle(object request) {
+        if (request as string == "auth_fail") return "Auth failed";
+        return base.Handle(request);
+    }
+}`, java: `// Handler
+interface Handler { Handler setNext(Handler h); String handle(String request); }
+// Abstract Handler
+abstract class BaseHandler implements Handler {
+    private Handler next;
+    public Handler setNext(Handler h) { this.next = h; return h; }
+    public String handle(String request) { return next != null ? next.handle(request) : null; }
+}
+// Concrete Handlers
+class AuthHandler extends BaseHandler {
+    public String handle(String request) {
+        if (request.equals("auth_fail")) return "Auth failed";
+        return super.handle(request);
+    }
+}` },
+                    command: { csharp: `// Command
+public interface ICommand { void Execute(); }
+// Concrete Command
+public class LightOnCommand : ICommand {
+    private Light _light; // Receiver
+    public LightOnCommand(Light light) { _light = light; }
+    public void Execute() => _light.TurnOn();
+}
+// Receiver
+public class Light { public void TurnOn() { /* ... */ } }
+// Invoker
+public class RemoteControl {
+    private ICommand _command;
+    public void SetCommand(ICommand command) => _command = command;
+    public void PressButton() => _command.Execute();
+}`, java: `// Command
+interface Command { void execute(); }
+// Concrete Command
+class LightOnCommand implements Command {
+    private Light light; // Receiver
+    public LightOnCommand(Light light) { this.light = light; }
+    public void execute() { light.turnOn(); }
+}
+// Receiver
+class Light { public void turnOn() { /* ... */ } }
+// Invoker
+class RemoteControl {
+    private Command command;
+    public void setCommand(Command command) { this.command = command; }
+    public void pressButton() { command.execute(); }
+}` },
+                    iterator: { csharp: `// Using C#'s built-in IEnumerator
+public class MyCollection : System.Collections.IEnumerable {
+    private int[] _items = {1, 2, 3};
+    public System.Collections.IEnumerator GetEnumerator() => _items.GetEnumerator();
+}`, java: `// Using Java's built-in Iterator
+class MyCollection implements Iterable<Integer> {
+    private Integer[] items = {1, 2, 3};
+    public java.util.Iterator<Integer> iterator() {
+        return java.util.Arrays.asList(items).iterator();
+    }
+}` },
+                    mediator: { csharp: `// Mediator
+public interface IMediator { void Notify(object sender, string ev); }
+// Concrete Mediator
+public class AuthDialog : IMediator {
+    private Button _loginButton; private Checkbox _rememberMe;
+    public AuthDialog() { /* Init components and pass this mediator */ }
+    public void Notify(object sender, string ev) {
+        if (sender == _loginButton && ev == "click") { /* ... */ }
+    }
+}
+// Component
+public class Button { protected IMediator _dialog; }
+public class Checkbox { protected IMediator _dialog; }`, java: `// Mediator
+interface Mediator { void notify(Object sender, String event); }
+// Concrete Mediator
+class AuthDialog implements Mediator {
+    private Button loginButton; private Checkbox rememberMe;
+    public AuthDialog() { /* Init components and pass this mediator */ }
+    public void notify(Object sender, String event) {
+        if (sender == loginButton && event.equals("click")) { /* ... */ }
+    }
+}
+// Component
+class Button { protected Mediator dialog; }
+class Checkbox { protected Mediator dialog; }` },
+                    memento: { csharp: `// Originator
+public class Editor {
+    public string Content { get; set; }
+    public EditorMemento CreateState() => new EditorMemento(Content);
+    public void RestoreState(EditorMemento memento) => Content = memento.GetContent();
+}
+// Memento
+public class EditorMemento {
+    private readonly string _content;
+    public EditorMemento(string content) { _content = content; }
+    public string GetContent() => _content;
+}
+// Caretaker
+public class History {
+    private System.Collections.Generic.Stack<EditorMemento> _history = new();
+    public void Push(EditorMemento state) => _history.Push(state);
+    public EditorMemento Pop() => _history.Pop();
+}`, java: `// Originator
+class Editor {
+    private String content;
+    public void setContent(String content) { this.content = content; }
+    public EditorMemento createState() { return new EditorMemento(content); }
+    public void restoreState(EditorMemento memento) { this.content = memento.getContent(); }
+}
+// Memento
+class EditorMemento {
+    private final String content;
+    public EditorMemento(String content) { this.content = content; }
+    public String getContent() { return content; }
+}
+// Caretaker
+class History {
+    private java.util.Stack<EditorMemento> history = new java.util.Stack<>();
+    public void push(EditorMemento state) { history.push(state); }
+    public EditorMemento pop() { return history.pop(); }
+}` },
+                    observer: { csharp: `// Subject (Publisher)
+public class Editor {
+    public EventManager Events = new();
+    public void OpenFile(string path) => Events.Notify("open", path);
+}
+// Event Manager (part of Subject)
+public class EventManager {
+    private System.Collections.Generic.Dictionary<string, IEventListener> _listeners = new();
+    public void Subscribe(string eventType, IEventListener listener) { _listeners.Add(eventType, listener); }
+    public void Notify(string eventType, string data) { if(_listeners.ContainsKey(eventType)) _listeners[eventType].Update(data); }
+}
+// Subscriber
+public interface IEventListener { void Update(string data); }
+public class LoggingListener : IEventListener { public void Update(string data) { /* Log it */ } }`, java: `// Subject (Publisher)
+class Editor {
+    public EventManager events = new EventManager();
+    public void openFile(String path) { events.notify("open", path); }
+}
+// Event Manager
+class EventManager {
+    java.util.Map<String, EventListener> listeners = new java.util.HashMap<>();
+    public void subscribe(String eventType, EventListener listener) { listeners.put(eventType, listener); }
+    public void notify(String eventType, String data) { listeners.get(eventType).update(data); }
+}
+// Subscriber
+interface EventListener { void update(String data); }
+class LoggingListener implements EventListener { public void update(String data) { /* Log it */ } }` },
+                    state: { csharp: `// Context
+public class Document {
+    public IState State { get; set; }
+    public Document() { State = new Draft(this); }
+    public void Publish() => State.Publish();
+}
+// State
+public interface IState { void Publish(); }
+// Concrete States
+public class Draft : IState {
+    private Document _doc;
+    public Draft(Document doc) { _doc = doc; }
+    public void Publish() => _doc.State = new Published(_doc);
+}
+public class Published : IState { public Published(Document doc) {} public void Publish() {} }`, java: `// Context
+class Document {
+    private State state;
+    public Document() { this.state = new Draft(this); }
+    public void setState(State state) { this.state = state; }
+    public void publish() { state.publish(); }
+}
+// State
+interface State { void publish(); }
+// Concrete States
+class Draft implements State {
+    private Document doc;
+    public Draft(Document doc) { this.doc = doc; }
+    public void publish() { doc.setState(new Published(doc)); }
+}
+class Published implements State { public Published(Document doc) {} public void publish() {} }` },
+                    strategy: { csharp: `// Context
+public class Sorter {
+    private ISortStrategy _strategy;
+    public void SetStrategy(ISortStrategy strategy) => _strategy = strategy;
+    public void Sort(int[] array) => _strategy.Sort(array);
+}
+// Strategy
+public interface ISortStrategy { void Sort(int[] array); }
+// Concrete Strategies
+public class BubbleSort : ISortStrategy { public void Sort(int[] array) { /* ... */ } }
+public class QuickSort : ISortStrategy { public void Sort(int[] array) { /* ... */ } }`, java: `// Context
+class Sorter {
+    private SortStrategy strategy;
+    public void setStrategy(SortStrategy strategy) { this.strategy = strategy; }
+    public void sort(int[] array) { strategy.sort(array); }
+}
+// Strategy
+interface SortStrategy { void sort(int[] array); }
+// Concrete Strategies
+class BubbleSort implements SortStrategy { public void sort(int[] array) { /* ... */ } }
+class QuickSort implements SortStrategy { public void sort(int[] array) { /* ... */ } }` },
+                    template_method: { csharp: `// Abstract Class
+public abstract class GameAI {
+    // Template Method
+    public void TakeTurn() {
+        CollectResources();
+        BuildStructures();
+        Attack();
+    }
+    protected abstract void CollectResources();
+    protected abstract void BuildStructures();
+    protected virtual void Attack() { /* Default attack */ }
+}
+// Concrete Class
+public class OrcAI : GameAI {
+    protected override void CollectResources() { /* Collect differently */ }
+    protected override void BuildStructures() { /* Build differently */ }
+}`, java: `// Abstract Class
+abstract class GameAI {
+    // Template Method
+    public final void takeTurn() {
+        collectResources();
+        buildStructures();
+        attack();
+    }
+    protected abstract void collectResources();
+    protected abstract void buildStructures();
+    protected void attack() { /* Default attack */ }
+}
+// Concrete Class
+class OrcAI extends GameAI {
+    protected void collectResources() { /* Collect differently */ }
+    protected void buildStructures() { /* Build differently */ }
+}` },
+                    visitor: { csharp: `// Element
+public interface IShape { void Accept(IVisitor visitor); }
+public class Dot : IShape { public void Accept(IVisitor v) => v.VisitDot(this); }
+public class Circle : IShape { public void Accept(IVisitor v) => v.VisitCircle(this); }
+// Visitor
+public interface IVisitor { void VisitDot(Dot d); void VisitCircle(Circle c); }
+// Concrete Visitor
+public class XMLExportVisitor : IVisitor {
+    public void VisitDot(Dot d) { /* Export Dot to XML */ }
+    public void VisitCircle(Circle c) { /* Export Circle to XML */ }
+}`, java: `// Element
+interface Shape { void accept(Visitor visitor); }
+class Dot implements Shape { public void accept(Visitor v) { v.visitDot(this); } }
+class Circle implements Shape { public void accept(Visitor v) { v.visitCircle(this); } }
+// Visitor
+interface Visitor { void visitDot(Dot d); void visitCircle(Circle c); }
+// Concrete Visitor
+class XMLExportVisitor implements Visitor {
+    public void visitDot(Dot d) { /* Export Dot to XML */ }
+    public void visitCircle(Circle c) { /* Export Circle to XML */ }
+}` },
+                };
+            }
+        };
+    }
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('pageController', pageController);
+    });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+</body>
+</html>
